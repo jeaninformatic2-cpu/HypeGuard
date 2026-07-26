@@ -182,6 +182,84 @@ export default function App() {
     );
   };
 
+  // Action: Add New Agent Device
+  const handleAddDevice = (
+    deviceData: Omit<
+      AgentDevice,
+      | 'id'
+      | 'lastHeartbeat'
+      | 'status'
+      | 'cpuUsagePercent'
+      | 'ramUsagePercent'
+      | 'diskFreeGB'
+      | 'diskTotalGB'
+      | 'diskUsagePercent'
+      | 'diskHealth'
+      | 'vssAvailable'
+      | 'credentialVaultLocked'
+      | 'autoUpdatePending'
+      | 'localSystemUser'
+      | 'agentVersion'
+    >
+  ) => {
+    const id = `dev_${Date.now()}`;
+    const newDevice: AgentDevice = {
+      id,
+      companyId: deviceData.companyId,
+      companyName: deviceData.companyName,
+      hostname: deviceData.hostname,
+      osName: deviceData.osName,
+      ipAddress: deviceData.ipAddress,
+      agentVersion: 'v2.4.1-WorkerEngine',
+      status: 'online',
+      lastHeartbeat: new Date().toISOString(),
+      cpuUsagePercent: Math.floor(Math.random() * 20) + 10,
+      ramUsagePercent: Math.floor(Math.random() * 25) + 50,
+      diskFreeGB: 410,
+      diskTotalGB: 512,
+      diskUsagePercent: 20,
+      diskHealth: 'HEALTHY',
+      vssAvailable: true,
+      credentialVaultLocked: true,
+      autoUpdatePending: false,
+      localSystemUser: 'NT AUTHORITY\\SYSTEM',
+      virtualFolderGroup: deviceData.virtualFolderGroup,
+    };
+
+    setDevices((prev) => [newDevice, ...prev]);
+
+    // Increment device count for the company
+    setCompanies((prev) =>
+      prev.map((c) => (c.id === deviceData.companyId ? { ...c, devicesCount: c.devicesCount + 1 } : c))
+    );
+
+    // Create a default backup job for the new device
+    const newJob: BackupJob = {
+      id: `job_${Date.now()}`,
+      deviceId: id,
+      hostname: newDevice.hostname,
+      companyId: newDevice.companyId,
+      companyName: newDevice.companyName,
+      jobName: `Backup VSS ${newDevice.hostname}`,
+      jobType: 'VSS_FULL',
+      destinationPath: `\\\\NAS_ISOLATED\\Backups_${newDevice.companyId}$`,
+      scheduleCron: 'Diário às 22:00',
+      status: 'SUCCESS',
+      lastRunTimestamp: new Date().toISOString(),
+      durationSeconds: 1200,
+      transferredBytesMB: 65400,
+      vssSnapshotCreated: true,
+      vaultSessionClosedAfterRun: true,
+    };
+    setJobs((prev) => [newJob, ...prev]);
+
+    addAuditLog(
+      'Agente RMM Cadastrado',
+      newDevice.companyName,
+      `Novo agente ${newDevice.hostname} (${newDevice.ipAddress}) registrado no grupo ${newDevice.virtualFolderGroup}.`
+    );
+  };
+
   // Helper: Add Audit Log
   const addAuditLog = (action: string, companyName: string, details: string) => {
     const newLog: AuditLog = {
@@ -532,6 +610,7 @@ export default function App() {
                 setDevices(prev => prev.map(d => d.id === id ? { ...d, lastHeartbeat: new Date().toISOString(), status: 'online' } : d));
               }}
               onToggleVaultLock={handleToggleVaultLock}
+              onOpenGenerator={() => setShowGeneratorModal(true)}
             />
           )}
 
@@ -586,6 +665,8 @@ export default function App() {
       <WorkerServiceGeneratorModal
         isOpen={showGeneratorModal}
         onClose={() => setShowGeneratorModal(false)}
+        companies={companies}
+        onAddDevice={handleAddDevice}
       />
 
     </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Server, Activity, HardDrive, Cpu, ShieldCheck, RefreshCw, ArrowUpCircle, Lock, CheckCircle2, AlertTriangle, XCircle, Search, Filter } from 'lucide-react';
+import { Server, Activity, HardDrive, Cpu, ShieldCheck, RefreshCw, ArrowUpCircle, Lock, CheckCircle2, AlertTriangle, XCircle, Search, Filter, PlusCircle } from 'lucide-react';
 import { AgentDevice } from '../types';
 
 interface AgentTelemetryViewProps {
@@ -7,6 +7,7 @@ interface AgentTelemetryViewProps {
   onTriggerAgentUpdate: (deviceId: string) => void;
   onTriggerSingleHeartbeat: (deviceId: string) => void;
   onToggleVaultLock: (deviceId: string) => void;
+  onOpenGenerator?: () => void;
 }
 
 export const AgentTelemetryView: React.FC<AgentTelemetryViewProps> = ({
@@ -14,6 +15,7 @@ export const AgentTelemetryView: React.FC<AgentTelemetryViewProps> = ({
   onTriggerAgentUpdate,
   onTriggerSingleHeartbeat,
   onToggleVaultLock,
+  onOpenGenerator,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [folderFilter, setFolderFilter] = useState<string>('ALL');
@@ -43,6 +45,16 @@ export const AgentTelemetryView: React.FC<AgentTelemetryViewProps> = ({
 
         {/* Filter Controls */}
         <div className="flex flex-wrap items-center gap-2">
+          {onOpenGenerator && (
+            <button
+              onClick={onOpenGenerator}
+              className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold px-3 py-1.5 rounded-lg shadow-sm transition-all flex items-center space-x-1"
+            >
+              <PlusCircle className="w-3.5 h-3.5" />
+              <span>Novo Agente</span>
+            </button>
+          )}
+
           {/* Search */}
           <div className="relative">
             <Search className="w-4 h-4 text-slate-400 absolute left-2.5 top-2.5" />

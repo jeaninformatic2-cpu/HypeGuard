@@ -1,0 +1,6 @@
+{
+  "name": "HypeGuard Backup Enterprise",
+  "description": "Plataforma SaaS RMM e Gerenciador de Backups Anti-Ransomware com Telemetria em Tempo Real, VSS Shadow Copy e Cofre de Credenciais.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
